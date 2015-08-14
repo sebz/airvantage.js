@@ -1,0 +1,24 @@
+{
+  "name": "airvantage.js",
+  "version": "0.0.1",
+  "description": "System simulator for AirVantage",
+  "scripts": {
+    "test": "node test/airvantageTests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:sebz/airvantage.js.git"
+  },
+  "keywords": [
+    "airvantage",
+    "rest",
+    "api",
+    "nodejs"
+  ],
+  "author": "Sebz <sebzen@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "got": "^4.1.1",
+    "lodash": "^3.10.1"
+  }
+}
