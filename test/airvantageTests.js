@@ -2,7 +2,6 @@ var AirVantage = require("../lib/airvantage");
 var config = require("./config.js");
 var _ = require("lodash");
 
-
 var applicationUid = "";
 // Used to label the resources created for this simulation
 var label = "airvantage.js";
@@ -40,7 +39,7 @@ function testBypassAuthentication() {
             return airvantage2.querySystems();
         })
         .then(function(systems) {
-            console.log("Found systems with AirVantage client 2:", _.pluck(systems, "name"));
+            console.log("Found", systems.length, "systems with AirVantage client 2:");
         });
 }
 
@@ -55,7 +54,7 @@ function createApplication() {
             "labels": [label]
         })
         .then(function(application) {
-            console.log("Created application:", application);
+            console.log("Created application:", application.name);
             applicationUid = application.uid;
             return application;
         });
@@ -124,20 +123,26 @@ function createSystem() {
 
     return airvantage.createSystem(system)
         .then(function(system) {
-            console.log("Created System:", system);
+            console.log("Created System:", system.name);
             return system;
         });
 }
 
 function cleanResources() {
     console.log("Clean resources");
-    return airvantage.deleteSystem({
-            labels: [label]
+    return airvantage.deleteSystems({
+            selection: {
+                label: label
+            },
+            deleteGateways: true,
+            deleteSubscriptions: true
         })
         .then(function() {
             console.log("Systems deleted");
-            return airvantage.deleteApplication({
-                labels: [label]
+            return airvantage.deleteApplications({
+                selection: {
+                    label: label
+                }
             });
         })
         .then(function(application) {
