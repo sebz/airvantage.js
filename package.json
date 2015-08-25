@@ -1,7 +1,8 @@
 {
-  "name": "airvantage.js",
+  "name": "airvantage",
   "version": "0.0.1",
-  "description": "System simulator for AirVantage",
+  "description": "AirVantage API client for nodejs ",
+  "main": "lib/airvantage.js",
   "scripts": {
     "test": "node test/airvantageTests.js"
   },
@@ -18,6 +19,7 @@
   "author": "Sebz <sebzen@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "bluebird": "^2.9.34",
     "got": "^4.1.1",
     "lodash": "^3.10.1"
   }
