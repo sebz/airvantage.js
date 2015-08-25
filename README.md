@@ -76,8 +76,8 @@ airvantage.authenticate()
         // Or
         "uids" : ["uid1", ...]
     },
-    deleteGateway: false | true,
-    deleteSubscriptions: false | true
+    "deleteGateway": false | true,
+    "deleteSubscriptions": false | true
 }
 ```
 
