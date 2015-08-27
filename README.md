@@ -8,7 +8,9 @@ Full AirVantage API documentation: https://doc.airvantage.net/av/reference/cloud
 
 ## Install
 
-`$ npm install --save airvantage`
+```
+$ npm install --save airvantage
+```
 
 
 ## Usage
@@ -30,15 +32,37 @@ var config = {
 var airvantage = new AirVantage(config);
 
 airvantage.authenticate()
-    .then(function(){
+    .then(function() {
         return airvantage.querySystems({
-                labels : ["demo"]
-            })
+            labels: ["demo"]
+        })
     })
-    .then(function(systems){
+    .then(function(systems) {
         console.log("All demo systems:", systems);
     });
 
+```
+
+You may already have an `access_token` and want to use it:
+
+```javascript
+
+var AirVantage = require("airvantage");
+var airvantage = new AirVantage({
+    serverUrl: "https://eu.airvantage.net", // or https://na.airvantage.net
+});
+
+function querySystems(accessToken) {
+    airvantage.authenticate(accessToken)
+        .then(function() {
+            return airvantage.querySystems({
+                labels: ["demo"]
+            })
+        })
+        .then(function(systems) {
+            console.log("All demo systems:", systems);
+        });
+}
 ```
 
 ## Available methods
