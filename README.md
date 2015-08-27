@@ -5,6 +5,12 @@ AirVantage.js
 
 Full AirVantage API documentation: https://doc.airvantage.net/av/reference/cloud/API/
 
+
+## Install
+
+`$ npm install --save airvantage`
+
+
 ## Usage
 
 ```javascript
