@@ -1,0 +1,27 @@
+{
+    // Details: https://github.com/victorporof/Sublime-JSHint#using-your-own-jshintrc-options
+    // Example: https://github.com/jshint/jshint/blob/master/examples/.jshintrc
+    // Documentation: http://www.jshint.com/docs/
+    "undef": true,
+    "unused": "vars",
+    "laxbreak": true,
+    "node": true,
+    "strict": false,
+    "sub": true,
+    "globals": {
+        "__dirname": true,
+        "before": true,
+        "beforeEach": true,
+        "Buffer": true,
+        "describe": true,
+        "expect": true,
+        "exports": true,
+        "it": true,
+        "jasmine": true,
+        "process": true,
+        "resourcesUrlBase": true,
+        "serverUrlBase": true,
+        "servicesUrlBase": true,
+        "xdescribe": true
+    }
+}
