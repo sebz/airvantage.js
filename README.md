@@ -53,7 +53,7 @@ var airvantage = new AirVantage({
 });
 
 function querySystems(accessToken) {
-    airvantage.authenticate(accessToken)
+    airvantage.authenticate({token: accessToken})
         .then(function() {
             return airvantage.querySystems({
                 labels: ["demo"]
@@ -61,6 +61,23 @@ function querySystems(accessToken) {
         })
         .then(function(systems) {
             console.log("All demo systems:", systems);
+        });
+}
+```
+
+OR you may want to authentication multiple users with a single AirVantage instance
+
+```javascript
+
+var AirVantage = require("airvantage");
+var airvantage = new AirVantage({
+    serverUrl: "https://eu.airvantage.net", // or https://na.airvantage.net
+});
+
+function authenticate(username, password) {
+    airvantage.authenticate({username: username, password: password})
+        .then(function(token) {
+            storeToken(username, token);
         });
 }
 ```
@@ -79,16 +96,46 @@ function querySystems(accessToken) {
 ### queryApplications
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-### createSystems
+### queryOperations
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-### createGateways
+### createSystem
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-### createSusbscriptions
+### createGateway
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-### createApplications
+### createSusbscription
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### createApplication
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### editSystem
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### editGateway
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### editSusbscription
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### editApplication
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### getDetailsSystem
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### getDetailsGateway
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### getDetailsSubscription
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### getDetailsApplication
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### getDetailsOperation
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
 ### deleteSystem(uid)
@@ -165,10 +212,20 @@ function querySystems(accessToken) {
 }
 ```
 
-### editApplicationCommunication
+### editApplicationCommunication(uid, data)
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-### editApplicationData
+### editApplicationData(uid, data)
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
+### activateSystem
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
+### releaseApplication(filePath)
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### publishApplication(uid)
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+### currentUser
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
