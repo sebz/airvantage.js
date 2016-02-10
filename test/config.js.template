@@ -5,5 +5,9 @@ module.exports = {
         client_secret: "YOUR_CLIENT_SECRET",
         username: "you@domain.com",
         password: "yOuRs3cR3t!"
+    },
+    user2: {
+        username:"coworker@domain.com",
+        password: "hIsS3cR3t!"
     }
 };

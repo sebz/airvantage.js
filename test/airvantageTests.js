@@ -7,6 +7,7 @@ var applicationUid = "";
 var label = "airvantage.js";
 
 var airvantage = new AirVantage(config);
+airvantage.debug = true;
 var airvantage2 = new AirVantage({
     serverUrl: config.serverUrl
 });
@@ -17,12 +18,17 @@ airvantage.authenticate()
         console.log("Got token:", token);
         firstToken = token;
     })
+    .then(cleanResources)
     .then(createApplication)
     .then(editCommunication)
     .then(editData)
     .then(createSystem)
+    .then(editSystem)
     .then(cleanResources)
-    .then(testBypassAuthentication)
+    .then(testBypassAuthenticationToken)
+    .then(testMultiUserAuthentication)
+    .then(queryOperations)
+    .then(getOperationDetails)
     .catch(function(error) {
         console.error("# ERROR:", error.response.body);
     });
@@ -30,8 +36,10 @@ airvantage.authenticate()
 /**
  * Use a second AirVantage instance using first one's token
  */
-function testBypassAuthentication() {
-    return airvantage2.authenticate(firstToken)
+function testBypassAuthenticationToken() {
+    return airvantage2.authenticate({
+            token: firstToken
+        })
         .then(function(token) {
             console.log("Is first token used? ", token === firstToken ? true : false);
         })
@@ -40,6 +48,29 @@ function testBypassAuthentication() {
         })
         .then(function(systems) {
             console.log("Found", systems.length, "systems with AirVantage client 2:");
+        });
+}
+
+/**
+ * Use an AirVantage instance for different users
+ */
+function testMultiUserAuthentication() {
+    var user1;
+    return airvantage.currentUser()
+        .then(function(user) {
+            user1 = user;
+            return airvantage.authenticate({
+                username: config.user2.username,
+                password: config.user2.password
+            });
+        })
+        .then(function(token) {
+            return airvantage.currentUser();
+        })
+        .then(function(user2) {
+            console.log("user1:", user1.email);
+            console.log("user2:", user2.email);
+            console.log("Different users ? ", user2.uid !== user1.uid);
         });
 }
 
@@ -62,12 +93,15 @@ function createApplication() {
 
 function editCommunication() {
     return airvantage.editApplicationCommunication(applicationUid, [{
-        type: "MQTT",
-        commIdType: "SERIAL",
-        parameters: {
-            password: "1234"
-        }
-    }]);
+            type: "MQTT",
+            commIdType: "SERIAL",
+            parameters: {
+                password: "1234"
+            }
+        }])
+        .catch(function(error) {
+            console.log("##### ERR:", error);
+        });
 }
 
 function editData() {
@@ -125,6 +159,30 @@ function createSystem() {
         .then(function(system) {
             console.log("Created System:", system.name);
             return system;
+        });
+}
+
+function editSystem(system) {
+    return airvantage.editSystem(system.uid, {
+            name: system.name + " - EDITED"
+        })
+        .then(function(editedSystem) {
+            console.log("Edited editedSystem:", editedSystem.name);
+        });
+}
+
+function queryOperations() {
+    return airvantage.queryOperations()
+        .then(function(operations) {
+            console.log("Found", operations.length, "operations");
+            return operations;
+        });
+}
+
+function getOperationDetails(operations) {
+    return airvantage.getDetailsOperation(operations[0].uid)
+        .then(function(opDetails) {
+            console.log("OP details:", opDetails);
         });
 }
 
