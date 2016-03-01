@@ -11,9 +11,14 @@ airvantage.debug = true;
 var airvantage2 = new AirVantage({
     serverUrl: config.serverUrl
 });
+airvantage2.debug = true;
 var firstToken = "";
 
 airvantage.authenticate()
+    .then(testLogout)
+    .then(function() {
+        return airvantage.authenticate();
+    })
     .then(function(token) {
         console.log("Got token:", token);
         firstToken = token;
@@ -32,6 +37,40 @@ airvantage.authenticate()
     .catch(function(error) {
         console.error("# ERROR:", error.response.body);
     });
+
+function testLogout() {
+    var tokenToExpire;
+    return airvantage.logout()
+        .then(function() {
+            return airvantage.querySystems()
+                .catch(function(err) {
+                    console.log("Token has been expired:", err.message);
+                });
+        })
+        .then(function() {
+            return airvantage.authenticate();
+        })
+        .then(function(token) {
+            tokenToExpire = token;
+        })
+        .then(function() {
+            return airvantage.querySystems()
+                .then(function(systems) {
+                    console.log("New Token, found systems: ", systems.length);
+                });
+        })
+        .then(function() {
+            return airvantage2.logout({
+                token: tokenToExpire
+            });
+        })
+        .then(function() {
+            return airvantage.querySystems()
+                .catch(function(err) {
+                    console.log("Token has been expired:", err.message);
+                });
+        });
+}
 
 /**
  * Use a second AirVantage instance using first one's token
