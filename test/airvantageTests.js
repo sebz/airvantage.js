@@ -29,6 +29,13 @@ airvantage.authenticate()
     .then(editData)
     .then(createSystem)
     .then(editSystem)
+    .then(createGateway)
+    .then(editGateway)
+    .then(createSubscription)
+    .then(editSubscription)
+    .then(createAlertRule)
+    .then(editAlertRule)
+    .then(queryAlertRules)
     .then(cleanResources)
     .then(testBypassAuthenticationToken)
     .then(testMultiUserAuthentication)
@@ -242,7 +249,127 @@ function cleanResources() {
                 }
             });
         })
-        .then(function(application) {
+        .then(function() {
             console.log("Applications deleted");
+            return airvantage.deleteAlertRules({
+                fields: "uid"
+            });
+        })
+        .then(function() {
+            console.log("Alerts deleted");
+            return airvantage.deleteGateways({
+                selection: {
+                    label: label
+                }
+            });
+        })
+        .then(function() {
+            console.log("Gateways deleted");
+            return airvantage.deleteSubscriptions({
+                selection: {
+                    label: label
+                }
+            });
+        })
+        .then(function() {
+            console.log("Subscriptions deleted");
+        })
+
+}
+
+function createGateway() {
+    var gateway = {
+        imei: _.uniqueId("IMEI"),
+        type: "TEST",
+        labels: [label]
+    };
+
+    return airvantage.createGateway(gateway)
+        .then(function(gateway) {
+            console.log("Created gateway:", gateway.imei);
+            return gateway;
+        });
+}
+
+function editGateway(gateway) {
+    var data = {
+        imei: gateway.imei + " - Edited",
+    };
+
+    return airvantage.editGateway(gateway.uid, data)
+        .then(function(gatewayEdited) {
+            console.log("Edited gateway:", gatewayEdited.imei);
+            return gatewayEdited;
+        });
+}
+
+function createSubscription() {
+    var subscription = {
+        identifier: _.uniqueId("ID"),
+        operator: "UNKNOWN",
+        networkIdentifier: _.uniqueId("NI"),
+        labels: [label]
+    };
+
+    return airvantage.createSubscription(subscription)
+        .then(function(subscription) {
+            console.log("Created subscription:", subscription.networkIdentifier);
+            return subscription;
+        });
+}
+
+function editSubscription(subscription) {
+    var data = {
+        networkIdentifier: subscription.networkIdentifier + " - Edited",
+    };
+
+    return airvantage.editSubscription(subscription.uid, data)
+        .then(function(subscriptionEdited) {
+            console.log("Edited subscription:", subscriptionEdited.networkIdentifier);
+            return subscriptionEdited;
+        });
+}
+
+function createAlertRule() {
+    var alertRule = {
+        name: "MyAlertRule3Yj",
+        description: "rule number 1",
+        eventType: "event.system.incoming.communication",
+        conditions: [{
+            eventProperty: "communication.protocol",
+            eventPropertyKey: null,
+            operator: "EQUALS",
+            value: "MSCI"
+        }],
+        recipients: {
+            emails: ["user@airvantage.net"]
+        }
+    };
+
+    return airvantage.createAlertRule(alertRule)
+        .then(function(alertRule) {
+            console.log("Created alert rule:", alertRule.name);
+            return alertRule;
+        });
+}
+
+function editAlertRule(alertRule) {
+    var data = {
+        name: alertRule.name + " - EDITED",
+    };
+    console.log("uid ", alertRule.uid);
+    console.log("name", data);
+    return airvantage.editAlertRule(alertRule.uid, data)
+        .then(function(alertRuleEdited) {
+            console.log("Edited alert rule:", alertRuleEdited.name);
+            return alertRuleEdited;
+        });
+}
+
+function queryAlertRules() {
+    return airvantage.queryAlertRules({}, false)
+        .then(function(alertRules) {
+            console.log("Found ", alertRules.length, "alert rules");
+            return alertRules;
         });
 }
