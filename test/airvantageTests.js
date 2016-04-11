@@ -313,7 +313,9 @@ function createOperatoraccounts() {
 
     var opConnections;
     var retrieveOpConnection = function() {
-        return airvantage.queryOperatorConnections()
+        return airvantage.queryOperatorConnections({
+                name: "Cubic (stub)"
+            })
             .then(function(result) {
                 opConnections = result;
             });
@@ -321,12 +323,13 @@ function createOperatoraccounts() {
 
     var createOpAccount = function() {
         return airvantage.createOperatorAccounts({
-                name: "OA1",
+                name: "Op Acc test",
                 connection: {
-                    uid: opConnections[1].uid
+                    uid: opConnections[0].uid
                 }
             })
             .then(function(opAcc) {
+                console.log(opAcc);
                 return opAcc;
             }).catch(function(e) {
                 console.error(e);
@@ -341,14 +344,13 @@ function createOperatoraccounts() {
 function createSubscription(operatorAccount) {
     var subscription = {
         identifier: _.uniqueId("ID"),
-        operator: "ATT",
+        operator: "UNKNOWN",
         networkIdentifier: _.uniqueId("NI"),
         labels: [label],
         operatorAccount: {
             uid: operatorAccount.uid
         }
     };
-
     return airvantage.createSubscription(subscription)
         .then(function(subscription) {
             subscriptionUid = subscription.uid;
@@ -395,8 +397,6 @@ function editAlertRule(alertRule) {
     var data = {
         name: alertRule.name + " - EDITED",
     };
-    console.log("uid ", alertRule.uid);
-    console.log("name", data);
     return airvantage.editAlertRule(alertRule.uid, data)
         .then(function(alertRuleEdited) {
             console.log("Edited alert rule:", alertRuleEdited.name);
@@ -413,12 +413,11 @@ function queryAlertRules() {
 }
 
 function waitUntilOperationIsFinished(operationUid) {
-
     return airvantage.getDetailsOperation(operationUid)
         .then(function(detail) {
             if (detail.state != "FINISHED") {
                 console.log("### operation not finished ", detail.state);
-                sleep.sleep(2);
+                sleep.sleep(3);
                 return waitUntilOperationIsFinished(operationUid);
             } else {
                 console.log("### operation finished");
