@@ -21,7 +21,9 @@
   "dependencies": {
     "bluebird": "^2.9.34",
     "got": "^4.1.1",
-    "lodash": "^3.10.1",
+    "lodash": "^3.10.1"
+  },
+  "devDependencies": {
     "sleep": "^3.0.1"
   }
 }
