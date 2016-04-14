@@ -329,7 +329,6 @@ function createOperatoraccounts() {
                 }
             })
             .then(function(opAcc) {
-                console.log(opAcc);
                 return opAcc;
             }).catch(function(e) {
                 console.error(e);
