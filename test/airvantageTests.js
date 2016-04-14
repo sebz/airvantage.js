@@ -1,11 +1,11 @@
 var AirVantage = require("../lib/airvantage");
 var config = require("./config.js");
 var _ = require("lodash");
-
+var sleep = require("sleep");
 var applicationUid = "";
 // Used to label the resources created for this simulation
 var label = "airvantage.js";
-
+var subscriptionUid = "";
 var airvantage = new AirVantage(config);
 airvantage.debug = true;
 var airvantage2 = new AirVantage({
@@ -31,8 +31,14 @@ airvantage.authenticate()
     .then(editSystem)
     .then(createGateway)
     .then(editGateway)
+    .then(createOperatoraccounts)
     .then(createSubscription)
     .then(editSubscription)
+    .then(activateSubscriptions)
+    .then(synchronizeSubscriptions)
+    .then(suspendSubscriptions)
+    .then(restoreSubscriptions)
+    .then(terminateSubscriptions)
     .then(createAlertRule)
     .then(editAlertRule)
     .then(queryAlertRules)
@@ -303,17 +309,50 @@ function editGateway(gateway) {
         });
 }
 
-function createSubscription() {
+function createOperatoraccounts() {
+
+    var opConnections;
+    var retrieveOpConnection = function() {
+        return airvantage.queryOperatorConnections({
+                name: "Cubic (stub)"
+            })
+            .then(function(result) {
+                opConnections = result;
+            });
+    };
+
+    var createOpAccount = function() {
+        return airvantage.createOperatorAccounts({
+                name: "Op Acc test",
+                connection: {
+                    uid: opConnections[0].uid
+                }
+            })
+            .then(function(opAcc) {
+                return opAcc;
+            }).catch(function(e) {
+                console.error(e);
+            });
+    };
+
+    return retrieveOpConnection()
+        .then(createOpAccount);
+
+}
+
+function createSubscription(operatorAccount) {
     var subscription = {
         identifier: _.uniqueId("ID"),
         operator: "UNKNOWN",
         networkIdentifier: _.uniqueId("NI"),
-        labels: [label]
+        labels: [label],
+        operatorAccount: {
+            uid: operatorAccount.uid
+        }
     };
-
     return airvantage.createSubscription(subscription)
         .then(function(subscription) {
-            console.log("Created subscription:", subscription.networkIdentifier);
+            subscriptionUid = subscription.uid;
             return subscription;
         });
 }
@@ -357,8 +396,6 @@ function editAlertRule(alertRule) {
     var data = {
         name: alertRule.name + " - EDITED",
     };
-    console.log("uid ", alertRule.uid);
-    console.log("name", data);
     return airvantage.editAlertRule(alertRule.uid, data)
         .then(function(alertRuleEdited) {
             console.log("Edited alert rule:", alertRuleEdited.name);
@@ -371,5 +408,93 @@ function queryAlertRules() {
         .then(function(alertRules) {
             console.log("Found ", alertRules.length, "alert rules");
             return alertRules;
+        });
+}
+
+function waitUntilOperationIsFinished(operationUid) {
+    return airvantage.getDetailsOperation(operationUid)
+        .then(function(detail) {
+            if (detail.state != "FINISHED") {
+                console.log("### operation not finished ", detail.state);
+                sleep.sleep(3);
+                return waitUntilOperationIsFinished(operationUid);
+            } else {
+                console.log("### operation finished");
+                return;
+            }
+        });
+}
+
+function activateSubscriptions() {
+    return airvantage.activateSubscriptions({
+            subscriptions: {
+                uids: [subscriptionUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        }).then(function() {
+            console.log("Subscription(s) activated", subscriptionUid);
+        });
+}
+
+function synchronizeSubscriptions() {
+    return airvantage.synchronizeSubscriptions({
+            subscriptions: {
+                uids: [subscriptionUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        })
+        .then(function() {
+            console.log("Subscription(s) synchronized", subscriptionUid);
+        });
+}
+
+function suspendSubscriptions() {
+    return airvantage.suspendSubscriptions({
+            subscriptions: {
+                uids: [subscriptionUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        })
+        .then(function() {
+            console.log("Subscription(s) suspended", subscriptionUid);
+        });
+}
+
+function restoreSubscriptions() {
+    return airvantage.restoreSubscriptions({
+            subscriptions: {
+                uids: [subscriptionUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        })
+        .then(function() {
+            console.log("Subscription(s) restored", subscriptionUid);
+        });
+}
+
+function terminateSubscriptions() {
+    return airvantage.terminateSubscriptions({
+            subscriptions: {
+                uids: [subscriptionUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        })
+        .then(function() {
+            console.log("Subscription(s) terminated", subscriptionUid);
         });
 }
