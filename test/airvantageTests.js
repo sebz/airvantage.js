@@ -29,7 +29,7 @@ airvantage.authenticate()
     .then(createApplication)
     .then(editCommunication)
     .then(editData)
-    .then(createOperatoraccounts)
+    .then(createOperatorAccounts)
     .then(createSystem)
     .then(editSystem)
     .then(activateSystems)
@@ -324,7 +324,7 @@ function editGateway(gateway) {
         });
 }
 
-function createOperatoraccounts() {
+function createOperatorAccounts() {
 
     var opConnections;
     var retrieveOpConnection = function() {
