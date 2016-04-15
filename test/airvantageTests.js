@@ -6,6 +6,7 @@ var applicationUid = "";
 // Used to label the resources created for this simulation
 var label = "airvantage.js";
 var subscriptionUid = "";
+var systemUid = "";
 var airvantage = new AirVantage(config);
 airvantage.debug = true;
 var airvantage2 = new AirVantage({
@@ -13,6 +14,7 @@ var airvantage2 = new AirVantage({
 });
 airvantage2.debug = true;
 var firstToken = "";
+var operatorAccount;
 
 airvantage.authenticate()
     .then(testLogout)
@@ -27,11 +29,15 @@ airvantage.authenticate()
     .then(createApplication)
     .then(editCommunication)
     .then(editData)
+    .then(createOperatorAccounts)
     .then(createSystem)
     .then(editSystem)
+    .then(activateSystems)
+    .then(suspendSystems)
+    .then(resumeSystems)
+    .then(terminateSystems)
     .then(createGateway)
     .then(editGateway)
-    .then(createOperatoraccounts)
     .then(createSubscription)
     .then(editSubscription)
     .then(activateSubscriptions)
@@ -196,6 +202,15 @@ function createSystem() {
             serialNumber: serialNumber,
             labels: [label]
         },
+        subscription: {
+            identifier: _.uniqueId("SID"),
+            operator: "UNKNOWN",
+            networkIdentifier: _.uniqueId("SNI"),
+            labels: [label],
+            operatorAccount: {
+                uid: operatorAccount.uid
+            }
+        },
         labels: [label],
         applications: [{
             uid: applicationUid
@@ -206,10 +221,10 @@ function createSystem() {
             }
         }
     };
-
     return airvantage.createSystem(system)
         .then(function(system) {
             console.log("Created System:", system.name);
+            systemUid = system.uid;
             return system;
         });
 }
@@ -309,7 +324,7 @@ function editGateway(gateway) {
         });
 }
 
-function createOperatoraccounts() {
+function createOperatorAccounts() {
 
     var opConnections;
     var retrieveOpConnection = function() {
@@ -336,11 +351,14 @@ function createOperatoraccounts() {
     };
 
     return retrieveOpConnection()
-        .then(createOpAccount);
+        .then(createOpAccount)
+        .then(function(opAcc) {
+            operatorAccount = opAcc;
+        })
 
 }
 
-function createSubscription(operatorAccount) {
+function createSubscription() {
     var subscription = {
         identifier: _.uniqueId("ID"),
         operator: "UNKNOWN",
@@ -496,5 +514,61 @@ function terminateSubscriptions() {
         })
         .then(function() {
             console.log("Subscription(s) terminated", subscriptionUid);
+        });
+}
+
+function activateSystems() {
+    return airvantage.activateSystems({
+            systems: {
+                uids: [systemUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        }).then(function() {
+            console.log("System activated", systemUid);
+        });
+}
+
+function suspendSystems() {
+    return airvantage.suspendSystems({
+            systems: {
+                uids: [systemUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        }).then(function() {
+            console.log("System suspended", systemUid);
+        });
+}
+
+function resumeSystems() {
+    return airvantage.resumeSystems({
+            systems: {
+                uids: [systemUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        }).then(function() {
+            console.log("System resumed", systemUid);
+        });
+}
+
+function terminateSystems() {
+    return airvantage.terminateSystems({
+            systems: {
+                uids: [systemUid]
+            }
+        })
+        .then(function(result) {
+            return waitUntilOperationIsFinished(result.operation);
+
+        }).then(function() {
+            console.log("System terminated", systemUid);
         });
 }

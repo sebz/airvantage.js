@@ -83,171 +83,182 @@ function authenticate(username, password) {
 ```
 
 ## Available methods
-### Systems
+## Systems
 
-#### querySystems
+* *querySystems*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### getDetailsSystem
+* *getDetailsSystem*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### createSystem
+* *createSystem*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### editSystem
+* *editSystem*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### deleteSystem(uid)
-##### uid
-* *Required*
-* Type: `string`
+* *deleteSystem(uid)*
+    * uid
+        * *Required*
+        * Type: `string`
 
-#### deleteSystems(options)
-##### options
-* Type: `object`
-```javascript
-{
-    "selection" : {
-        "label": "aLabel",
-        // Or
-        "uids" : ["uid1", ...]
-    },
-    "deleteGateway": false | true,
-    "deleteSubscriptions": false | true
-}
-```
+* *deleteSystems(options)*
+    * options
+        * Type: `object`
+        ```javascript
+        {
+            "selection" : {
+                "label": "aLabel",
+                // Or
+                "uids" : ["uid1", ...]
+            },
+            "deleteGateway": false | true,
+            "deleteSubscriptions": false | true
+        }
+        ```
 
-#### activateSystem
+* *activateSystems*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-### Gateways
-#### queryGateways
+* *suspendSystems*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### getDetailsGateway
+* *resumeSystems*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### createGateway
+* *terminateSystems*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### editGateway
+## Gateways
+* *queryGateways*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### deleteGateway(uid)
-##### uid
-* *Required*
-* Type: `string`
-
-#### deleteGateways(options)
-##### options
-* Type: `object`
-```javascript
-{
-    "selection" : {
-        "label": "aLabel",
-        // Or
-        "uids" : ["uid1", ...]
-    }
-}
-```
-
-### Subscriptions
-#### querySusbscriptions
+* *getDetailsGateway*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### getDetailsSubscription
+* *createGateway*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### createSusbscription
+* *editGateway*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### editSusbscription
+* *deleteGateway(uid)*
+    * uid
+        * *Required*
+        * Type: `string`
+
+* *deleteGateways(options)*
+    * options
+        * Type: `object`
+        ```javascript
+        {
+            "selection" : {
+                "label": "aLabel",
+                // Or
+                "uids" : ["uid1", ...]
+            }
+        }
+        ```
+
+## Subscriptions
+* *querySusbscriptions*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### deleteSusbscription(uid)
-##### uid
-* *Required*
-* Type: `string`
-
-#### deleteSusbscription(options)
-##### options
-* Type: `object`
-```javascript
-{
-    "selection" : {
-        "label": "aLabel",
-        // Or
-        "uids" : ["uid1", ...]
-    }
-}
-```
-
-#### activateSusbscription
+* *getDetailsSubscription*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### synchronizeSusbscription
+* *createSusbscription*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### suspendSusbscription
+* *editSusbscription*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### restoreSusbscription
+* *deleteSusbscription(uid)*
+    * uid
+        * *Required*
+        * Type: `string`
+
+* *deleteSusbscription(options)*
+    * options
+        * Type: `object`
+        ```javascript
+        {
+            "selection" : {
+                "label": "aLabel",
+                // Or
+                "uids" : ["uid1", ...]
+            }
+        }
+        ```
+
+* *activateSusbscriptions*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### terminateSusbscription
+* *synchronizeSusbscriptions*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-### Applications
-#### queryApplications
+* *suspendSusbscriptions*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### getDetailsApplication
+* *restoreSusbscriptions*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### createApplication
+* *terminateSusbscriptions*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### editApplication
+
+## Applications
+
+* queryApplications
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### editApplicationCommunication(uid, data)
+* getDetailsApplication
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### editApplicationData(uid, data)
+* createApplication
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### releaseApplication(filePath)
+* editApplication
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### publishApplication(uid)
+* editApplicationCommunication(uid, data)
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### deleteApplication(uid)
-##### uid
-* *Required*
-* Type: `string`
-
-#### deleteApplications(options)
-##### options
-* Type: `object`
-```javascript
-{
-    "selection" : {
-        "label": "aLabel",
-        // Or
-        "uids" : ["uid1", ...]
-    }
-}
-```
-
-### Operations
-#### queryOperations
+* editApplicationData(uid, data)
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### getDetailsOperation
+* releaseApplication(filePath)
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-### Misc
+* publishApplication(uid)
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
-#### currentUser
+* deleteApplication(uid)
+    * uid
+        * *Required*
+        * Type: `string`
+
+* deleteApplications(options)
+    * options
+        * Type: `object`
+        ```javascript
+        {
+            "selection" : {
+                "label": "aLabel",
+                // Or
+                "uids" : ["uid1", ...]
+            }
+        }
+        ```
+
+## Operations
+* queryOperations
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+* getDetailsOperation
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+## Misc
+
+* currentUser
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
