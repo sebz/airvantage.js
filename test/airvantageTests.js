@@ -1,12 +1,15 @@
 var AirVantage = require("../lib/airvantage");
+var BPromise = require("bluebird");
 var config = require("./config.js");
 var _ = require("lodash");
 var sleep = require("sleep");
+var mqtt = require('mqtt');
 var applicationUid = "";
 // Used to label the resources created for this simulation
 var label = "airvantage.js";
 var subscriptionUid = "";
 var systemUid = "";
+var mqttPassword = "1234";
 var airvantage = new AirVantage(config);
 airvantage.debug = true;
 var airvantage2 = new AirVantage({
@@ -15,6 +18,7 @@ var airvantage2 = new AirVantage({
 airvantage2.debug = true;
 var firstToken = "";
 var operatorAccount;
+var serialNumber = _.uniqueId("SN");
 
 airvantage.authenticate()
     .then(testLogout)
@@ -32,6 +36,8 @@ airvantage.authenticate()
     .then(createOperatorAccounts)
     .then(createSystem)
     .then(editSystem)
+    .then(sendMQTTData)
+    .then(queryDataPoints)
     .then(activateSystems)
     .then(suspendSystems)
     .then(resumeSystems)
@@ -154,7 +160,7 @@ function editCommunication() {
             type: "MQTT",
             commIdType: "SERIAL",
             parameters: {
-                password: "1234"
+                password: mqttPassword
             }
         }])
         .catch(function(error) {
@@ -193,7 +199,6 @@ function editData() {
 }
 
 function createSystem() {
-    var serialNumber = _.uniqueId("SN");
 
     var system = {
         name: "System " + serialNumber,
@@ -217,7 +222,7 @@ function createSystem() {
         }],
         communication: {
             mqtt: {
-                password: "1234"
+                password: mqttPassword
             }
         }
     };
@@ -227,6 +232,38 @@ function createSystem() {
             systemUid = system.uid;
             return system;
         });
+}
+
+function sendMQTTData() {
+    return new BPromise(function(resolve, reject) {
+        var mqttOptions = {
+            host: config.mqttHost,
+            port: "1883",
+            clientId: serialNumber,
+            username: serialNumber,
+            password: mqttPassword
+        };
+        var client = mqtt.connect(mqttOptions);
+        var current = new Date().getTime().toString();
+        var payload = "{\"" + current + "\":{\"stuff.data.temperature\":20,\"longitude\":\"1.433333\"}}";
+        client.on('connect', function() {
+            client.publish(serialNumber + '/messages/json', payload, function() {
+                client.end();
+                console.log('Published MQTT data on', serialNumber);
+                sleep.sleep(3);
+                resolve();
+            });
+        });
+    });
+}
+
+function queryDataPoints() {
+    return airvantage.queryMultiRawDataPoints({
+        targetIds: systemUid,
+        dataIds: "stuff.data.temperature,longitude"
+    }).then(function(datapoints) {
+        console.log("Retrieved datapoints:", JSON.stringify(datapoints));
+    });
 }
 
 function editSystem(system) {

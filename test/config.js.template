@@ -1,5 +1,6 @@
 module.exports = {
     serverUrl: "https://eu.airvantage.net", // or https://na.airvantage.net
+    mqttHost: "eu.airvantage.net", // or na.airvantage.net
     credentials: {
         client_id: "YOUR_CLIENT_ID",
         client_secret: "YOUR_CLIENT_SECRET",

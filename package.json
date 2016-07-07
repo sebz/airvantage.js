@@ -1,6 +1,6 @@
 {
   "name": "airvantage",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "AirVantage API client for nodejs ",
   "main": "lib/airvantage.js",
   "scripts": {
@@ -26,6 +26,7 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-release": "^0.13.0",
-    "sleep": "^3.0.1"
+    "sleep": "^3.0.1",
+    "mqtt": "^1.12.0"
   }
 }
