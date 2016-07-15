@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git@github.com:sebz/airvantage.js.git"
   },
+  "engines": {
+    "node": ">=4"
+  },
   "keywords": [
     "airvantage",
     "rest",

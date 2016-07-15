@@ -5,6 +5,7 @@
     "node": true,
     "strict": false,
     "sub": true,
+    "esversion": 6,
     "globals": {
         "__dirname": true,
         "before": true,
