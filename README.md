@@ -8,6 +8,8 @@ Full AirVantage API documentation: https://doc.airvantage.net/av/reference/cloud
 
 ## Install
 
+:warning: **Node.js 4 or higher is required for airvantage@3 and above.** For older Node.js versions use airvantage@2.
+
 ```
 $ npm install --save airvantage
 ```
@@ -17,9 +19,9 @@ $ npm install --save airvantage
 
 ```javascript
 
-var AirVantage = require("airvantage");
+const AirVantage = require("airvantage");
 
-var config = {
+const config = {
     serverUrl: "https://eu.airvantage.net", // or https://na.airvantage.net
     credentials: {
         client_id: "YOUR_CLIENT_ID",
@@ -29,39 +31,28 @@ var config = {
     }
 };
 
-var airvantage = new AirVantage(config);
+const airvantage = new AirVantage(config);
 
-airvantage.authenticate()
-    .then(function() {
-        return airvantage.querySystems({
-            labels: ["demo"]
-        })
-    })
-    .then(function(systems) {
-        console.log("All demo systems:", systems);
-    });
-
+airvantage
+    .authenticate()
+    .then(() => airvantage.querySystems({ labels: ["demo"] }))
+    .then(systems => console.log("All demo systems:", systems));
 ```
 
 You may already have an `access_token` and want to use it:
 
 ```javascript
 
-var AirVantage = require("airvantage");
-var airvantage = new AirVantage({
+const AirVantage = require("airvantage");
+const airvantage = new AirVantage({
     serverUrl: "https://eu.airvantage.net", // or https://na.airvantage.net
 });
 
 function querySystems(accessToken) {
-    airvantage.authenticate({token: accessToken})
-        .then(function() {
-            return airvantage.querySystems({
-                labels: ["demo"]
-            })
-        })
-        .then(function(systems) {
-            console.log("All demo systems:", systems);
-        });
+    airvantage
+        .authenticate({token: accessToken})
+        .then(() => airvantage.querySystems({ labels: ["demo"] }))
+        .then(systems => console.log("All demo systems:", systems));
 }
 ```
 
@@ -69,16 +60,15 @@ OR you may want to authentication multiple users with a single AirVantage instan
 
 ```javascript
 
-var AirVantage = require("airvantage");
-var airvantage = new AirVantage({
+const AirVantage = require("airvantage");
+const airvantage = new AirVantage({
     serverUrl: "https://eu.airvantage.net", // or https://na.airvantage.net
 });
 
 function authenticate(username, password) {
-    airvantage.authenticate({username: username, password: password})
-        .then(function(token) {
-            storeToken(username, token);
-        });
+    airvantage
+        .authenticate({username: username, password: password})
+        .then(token => storeToken(username, token));
 }
 ```
 
