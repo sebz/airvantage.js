@@ -1,6 +1,6 @@
 {
   "name": "airvantage",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "AirVantage API client for nodejs ",
   "main": "lib/airvantage.js",
   "scripts": {
