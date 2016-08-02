@@ -3,6 +3,8 @@ AirVantage.js
 
 > Nodejs AirVantage API client
 
+[![Build Status](https://travis-ci.org/sebz/airvantage.js.svg?branch=switch-to-es6)](https://travis-ci.org/sebz/airvantage.js)
+
 Full AirVantage API documentation: https://doc.airvantage.net/av/reference/cloud/API/
 
 
