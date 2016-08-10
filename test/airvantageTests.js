@@ -53,6 +53,7 @@ airvantage.authenticate()
     .then(terminateSubscriptions)
     .then(createAlertRule)
     .then(editAlertRule)
+    .then(getAlertRule)
     .then(queryAlertRules)
     .then(cleanResources)
     .then(testBypassAuthenticationToken)
@@ -426,18 +427,20 @@ function editSubscription(subscription) {
 
 function createAlertRule() {
     var alertRule = {
+        targetType: "SYSTEM",
         name: "MyAlertRule3Yj",
-        description: "rule number 1",
-        eventType: "event.system.incoming.communication",
+        message: "rule number 1",
         conditions: [{
-            eventProperty: "communication.protocol",
-            eventPropertyKey: null,
             operator: "EQUALS",
-            value: "MSCI"
+            operands: [{
+                attributeId: {
+                    name: "system.comm.protocol"
+                }
+            }, {
+                valueStr: "MSCI"
+            }]
         }],
-        recipients: {
-            emails: ["user@airvantage.net"]
-        }
+        emails: ["user@airvantage.net"]
     };
 
     return airvantage.createAlertRule(alertRule)
@@ -448,23 +451,31 @@ function createAlertRule() {
 }
 
 function editAlertRule(alertRule) {
-    var data = {
-        name: alertRule.name + " - EDITED",
-    };
-    return airvantage.editAlertRule(alertRule.uid, data)
+    alertRule.name = alertRule.name + " - EDITED";
+    return airvantage.editAlertRule(alertRule.id, alertRule)
         .then(function(alertRuleEdited) {
             console.log("Edited alert rule:", alertRuleEdited.name);
             return alertRuleEdited;
         });
 }
 
+function getAlertRule(alertRule) {
+    console.log("get alert rule:", alertRule);
+    return airvantage.getDetailsAlertRule(alertRule.id)
+        .then(function(alertRule) {
+            console.log("Found alertRule:", alertRule.name);
+            return alertRule;
+        });
+}
+
 function queryAlertRules() {
-    return airvantage.queryAlertRules({}, false)
+    return airvantage.queryAlertRules({})
         .then(function(alertRules) {
             console.log("Found ", alertRules.length, "alert rules");
             return alertRules;
         });
 }
+
 
 function waitUntilOperationIsFinished(operationUid) {
     return airvantage.getDetailsOperation(operationUid)
