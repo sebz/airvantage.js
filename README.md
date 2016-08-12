@@ -83,7 +83,7 @@ function authenticate(username, password) {
 ```
 
 ## Available methods
-## Systems
+## Systems
 
 * *querySystems*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
@@ -127,6 +127,9 @@ function authenticate(username, password) {
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
 * *terminateSystems*
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+* *queryMultiRawDataPoints*
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
 ## Gateways
