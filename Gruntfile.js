@@ -7,8 +7,7 @@ module.exports = function(grunt) {
             options: {
                 github: {
                     repo: "sebz/airvantage.js",
-                    usernameVar: "GITHUB_USERNAME",
-                    passwordVar: "GITHUB_PASSWORD"
+                    accessTokenVar: "GITHUB_ACCESS_TOKEN"
                 }
             }
         }
