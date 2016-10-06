@@ -1,165 +1,102 @@
 import _ from "lodash";
 import config from "./config";
 import AirVantage from "../lib/airvantage";
+import nock from "nock";
 import test from "ava";
 
-
-// Used to label the resources created for these tests
-const LABEL = "airvantage.js";
 const airvantage = new AirVantage(config);
+const FAKE_UID = "fakeUid";
 
-function buildSystem(serialNumber) {
-    let systemTemplate = {
-        name: "System " + serialNumber,
-        gateway: {
-            serialNumber: serialNumber,
-            labels: [LABEL]
-        },
-        subscription: {
-            identifier: _.uniqueId("SID"),
-            operator: "UNKNOWN",
-            networkIdentifier: _.uniqueId("SNI"),
-            labels: [LABEL]
-        },
-        labels: [LABEL]
-    };
+const SYSTEM_1_UID = "3ed6cd7426604ee0bca9fe01f2521230";
+const SYSTEM_1 = {
+    "uid": SYSTEM_1_UID,
+    "name": "MySystem"
+};
+const sampleQuerySystemsResp = {
+    "items": [SYSTEM_1, {
+        "uid": "d2cbc9d8e7b8491ea3433e6c78f984e4",
+        "name": "MyOtherSystem"
+    }],
+    "count": 2,
+    "size": 2,
+    "offset": 0
+};
 
-    return systemTemplate;
-}
+test("query systems", async t => {
+    const scope = nock('https://tests.airvantage.io')
+        .get('/api/v1/systems?access_token=')
+        .reply(200, sampleQuerySystemsResp);
 
-function waitUntilOperationIsFinished(operationUid) {
-    return airvantage
-        .getDetailsOperation(operationUid)
-        .then(detail => {
-            if (detail.state != "FINISHED") {
-                // Not finished yet ? Try again in 3 seconds
-                return new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        waitUntilOperationIsFinished(operationUid)
-                            .then(() => resolve());
-                    }, 3000);
-                });
-            }
-        });
-}
+    let systems = await airvantage.querySystems();
+    t.truthy(_.isArray(systems));
+});
 
-test.before("clean resources", async() => {
-    const selection = {
-        selection: {
-            label: LABEL
-        },
-        deleteGateways: true,
-        deleteSubscriptions: true
-    };
+test("query systems full", async t => {
+    const scope = nock('https://tests.airvantage.io')
+        .get('/api/v1/systems?access_token=')
+        .reply(200, sampleQuerySystemsResp);
 
-    await airvantage.authenticate()
-        .then(() => airvantage.deleteSystems(selection))
-        .then(() => airvantage.deleteSubscriptions(selection));
+    let systems = await airvantage.querySystems(null, true);
+    t.truthy(_.isObject(systems));
+});
+
+test("get systems details", async t => {
+    const scope = nock('https://tests.airvantage.io')
+        .get(`/api/v1/systems/${SYSTEM_1_UID}?access_token=`)
+        .reply(200, SYSTEM_1);
+
+    let system = await airvantage.getDetailsSystem(SYSTEM_1_UID);
+    t.truthy(_.isObject(system));
 });
 
 test("create system", async t => {
-    const systemTemplate = buildSystem(_.uniqueId("SN"));
-    let system = await airvantage.createSystem(systemTemplate);
+    const newSystem = {
+        name: "New System "
+    };
+    const scope = nock('https://tests.airvantage.io')
+        .post('/api/v1/systems?access_token=', newSystem)
+        .reply(200, (req, system) => _.set(system, "uid", FAKE_UID));
+
+    let system = await airvantage.createSystem(newSystem);
     t.truthy(system);
-    t.is(system.name, systemTemplate.name);
+    t.truthy(system.uid);
+    t.is(system.name, newSystem.name);
 });
 
 test("edit system", async t => {
-    const systemTemplate = buildSystem(_.uniqueId("SN"));
-    const newName = systemTemplate.name + " - EDITED";
-    let system = await airvantage.createSystem(systemTemplate);
-    system = await airvantage.editSystem(system.uid, {
-        name: newName
-    });
+    const newName = " System Name edited",
+        newNameBody = {
+            name: newName
+        };
+
+    const scope = nock('https://tests.airvantage.io')
+        .put(`/api/v1/systems/${FAKE_UID}?access_token=`, newNameBody)
+        .reply(200, (req, system) => _.set(system, "name", newName));
+
+    const system = await airvantage.editSystem(FAKE_UID, newNameBody);
     t.is(system.name, newName);
 });
 
-test("activate system", async t => {
-    const systemTemplate = buildSystem(_.uniqueId("SN"));
-    let system = await airvantage.createSystem(systemTemplate);
-
-    system = await airvantage
-        .activateSystems({
-            systems: {
-                uids: [system.uid]
-            }
-        })
-        .then(result => waitUntilOperationIsFinished(result.operation))
-        .then(() => airvantage.getDetailsSystem(system.uid));
-
-    t.is(system.lifeCycleState, "ACTIVE");
-});
-
-test("suspend system", async t => {
-    const systemTemplate = buildSystem(_.uniqueId("SN"));
-    let system = await airvantage.createSystem(systemTemplate);
+async function testSystemOperations(t, operationName) {
     const selection = {
         systems: {
-            uids: [system.uid]
+            uids: [FAKE_UID]
         }
     };
+    const scope = nock('https://tests.airvantage.io')
+        .post(`/api/v1/operations/systems/${operationName}?access_token=`, selection)
+        .reply(200, {
+            operation: "operationUid"
+        });
 
-    system = await airvantage
-        .activateSystems(selection)
-        .then(result => waitUntilOperationIsFinished(result.operation))
-        .then(() => airvantage.suspendSystems(selection))
-        .then(result => waitUntilOperationIsFinished(result.operation))
-        .then(() => airvantage.getDetailsSystem(system.uid));
+    const operationResult = await airvantage[`${operationName}Systems`](selection);
+    t.truthy(operationResult && operationResult.operation);
+}
+testSystemOperations.title = (providedTitle, operationName, expected) => `${operationName} system`;
 
-    t.is(system.lifeCycleState, "SUSPENDED");
-});
+test(testSystemOperations, "activate");
+test(testSystemOperations, "suspend");
+test(testSystemOperations, "resume");
+test(testSystemOperations, "terminate");
 
-
-test("resume system", async t => {
-    t.plan(2);
-
-    const systemTemplate = buildSystem(_.uniqueId("SN"));
-    let system = await airvantage.createSystem(systemTemplate);
-    const selection = {
-        systems: {
-            uids: [system.uid]
-        }
-    };
-
-    system = await airvantage
-        .activateSystems(selection)
-        .then(result => waitUntilOperationIsFinished(result.operation))
-        .then(() => airvantage.suspendSystems(selection))
-        .then(result => waitUntilOperationIsFinished(result.operation))
-        .then(() => airvantage.getDetailsSystem(system.uid));
-
-    t.is(system.lifeCycleState, "SUSPENDED");
-
-    system = await airvantage
-        .resumeSystems(selection)
-        .then(result => waitUntilOperationIsFinished(result.operation))
-        .then(() => airvantage.getDetailsSystem(system.uid));
-
-    t.is(system.lifeCycleState, "ACTIVE");
-});
-
-test("terminate system", async t => {
-    t.plan(2);
-
-    const systemTemplate = buildSystem(_.uniqueId("SN"));
-    let system = await airvantage.createSystem(systemTemplate);
-    const selection = {
-        systems: {
-            uids: [system.uid]
-        }
-    };
-
-    system = await airvantage
-        .activateSystems(selection)
-        .then(result => waitUntilOperationIsFinished(result.operation))
-        .then(() => airvantage.getDetailsSystem(system.uid));
-
-    t.is(system.lifeCycleState, "ACTIVE");
-
-    system = await airvantage
-        .terminateSystems(selection)
-        .then(result => waitUntilOperationIsFinished(result.operation))
-        .then(() => airvantage.getDetailsSystem(system.uid));
-
-    t.is(system.lifeCycleState, "RETIRED");
-});
+test.todo('Add missing test for queryMultiRawDataPoints');

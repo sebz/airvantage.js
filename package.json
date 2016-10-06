@@ -30,9 +30,7 @@
     "ava": "^0.15.2",
     "grunt": "^0.4.5",
     "grunt-release": "^0.13.0",
-    "sleep": "^3.0.1",
-    "mqtt": "^1.12.0"
-    "grunt-release": "^0.13.0"
+    "nock": "^8.0.0"
   },
   "ava": {
     "files": [
