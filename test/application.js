@@ -1,16 +1,15 @@
+import _ from "lodash";
 import test from "ava";
 import config from "./config";
 import AirVantage from "../lib/airvantage";
+import nock from "nock";
 
-
-// Used to label the resources created for these tests
-const LABEL = "airvantage.js";
-let fakeApplication = {
+const NEW_APPLICATION = {
     "name": "FakeApp",
     "revision": "0.3",
     "type": "SBZ1",
-    "labels": [LABEL]
 };
+const FAKE_UID = "fakeUid";
 const COMMUNICATION_DETAILS = {
     type: "MQTT",
     commIdType: "SERIAL",
@@ -20,24 +19,21 @@ const COMMUNICATION_DETAILS = {
 };
 const airvantage = new AirVantage(config);
 
-test.before("clean resources", async() => {
-    await airvantage.authenticate()
-        .then(() => airvantage.deleteApplications({
-            selection: {
-                label: LABEL
-            }
-        }));
-});
+test("create application", async t => {
+    nock('https://tests.airvantage.io')
+        .post('/api/v1/applications?access_token=', NEW_APPLICATION)
+        .reply(200, (req, application) => _.set(application, "uid", FAKE_UID));
 
-test.serial("create application", async t => {
-    let application = await airvantage.createApplication(fakeApplication);
-    // Store uid for later use
-    fakeApplication.uid = application.uid;
-    t.is(application.name, fakeApplication.name);
+    let application = await airvantage.createApplication(NEW_APPLICATION);
+    t.truthy(application.uid);
+    t.is(application.name, NEW_APPLICATION.name);
 });
 
 test("edit communication", async t => {
-    let editCom = airvantage.editApplicationCommunication(fakeApplication.uid, [COMMUNICATION_DETAILS]);
+    nock('https://tests.airvantage.io')
+        .put(`/api/v1/applications/${FAKE_UID}/communication?access_token=`, [COMMUNICATION_DETAILS])
+        .reply(200);
+    const editCom = airvantage.editApplicationCommunication(FAKE_UID, [COMMUNICATION_DETAILS]);
     t.notThrows(editCom);
 });
 
@@ -67,6 +63,11 @@ test("edit data", async t => {
         encoding: "MQTT",
         data: applicationData
     }];
-    let editData = airvantage.editApplicationData(fakeApplication.uid, applicationDataDescription);
+
+    nock('https://tests.airvantage.io')
+        .put(`/api/v1/applications/${FAKE_UID}/data?access_token=`, applicationDataDescription)
+        .reply(200);
+
+    let editData = airvantage.editApplicationData(FAKE_UID, applicationDataDescription);
     t.notThrows(editData);
 });

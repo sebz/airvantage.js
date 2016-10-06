@@ -4,8 +4,6 @@ const AirVantage = require("../lib/airvantage");
 const BPromise = require("bluebird");
 const config = require("./config.js");
 const _ = require("lodash");
-const mqtt = require('mqtt');
-const sleep = require("sleep");
 let applicationUid = "";
 // Used to label the resources created for this simulation
 const label = "airvantage.js";
@@ -36,7 +34,6 @@ airvantage.authenticate()
     .then(createOperatorAccounts)
     .then(createSystem)
     .then(editSystem)
-    .then(sendMQTTData)
     .then(queryDataPoints)
     .then(activateSystems)
     .then(suspendSystems)
@@ -217,29 +214,6 @@ function createSystem() {
             systemUid = system.uid;
             return system;
         });
-}
-
-function sendMQTTData() {
-    return new BPromise(function(resolve, reject) {
-        var mqttOptions = {
-            host: config.mqttHost,
-            port: "1883",
-            clientId: serialNumber,
-            username: serialNumber,
-            password: mqttPassword
-        };
-        var client = mqtt.connect(mqttOptions);
-        var current = new Date().getTime().toString();
-        var payload = "{\"" + current + "\":{\"stuff.data.temperature\":20,\"longitude\":\"1.433333\"}}";
-        client.on('connect', function() {
-            client.publish(serialNumber + '/messages/json', payload, function() {
-                client.end();
-                console.log('Published MQTT data on', serialNumber);
-                sleep.sleep(3);
-                resolve();
-            });
-        });
-    });
 }
 
 function queryDataPoints() {
@@ -456,20 +430,6 @@ function queryAlertRules() {
         });
 }
 
-
-function waitUntilOperationIsFinished(operationUid) {
-    return airvantage
-        .getDetailsOperation(operationUid)
-        .then(detail => {
-            if (detail.state != "FINISHED") {
-                console.log("### operation not finished ", detail.state);
-                sleep.sleep(3);
-                return waitUntilOperationIsFinished(operationUid);
-            }
-            console.log("### operation finished");
-        });
-}
-
 function activateSubscriptions() {
     return airvantage
         .activateSubscriptions({
@@ -477,7 +437,7 @@ function activateSubscriptions() {
                 uids: [subscriptionUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("Subscription(s) activated", subscriptionUid));
 }
 
@@ -488,7 +448,7 @@ function synchronizeSubscriptions() {
                 uids: [subscriptionUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("Subscription(s) synchronized", subscriptionUid));
 }
 
@@ -499,7 +459,7 @@ function suspendSubscriptions() {
                 uids: [subscriptionUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("Subscription(s) suspended", subscriptionUid));
 }
 
@@ -510,7 +470,7 @@ function restoreSubscriptions() {
                 uids: [subscriptionUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("Subscription(s) restored", subscriptionUid));
 }
 
@@ -521,7 +481,7 @@ function terminateSubscriptions() {
                 uids: [subscriptionUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("Subscription(s) terminated", subscriptionUid));
 }
 
@@ -532,7 +492,7 @@ function activateSystems() {
                 uids: [systemUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("System activated", systemUid));
 }
 
@@ -543,7 +503,7 @@ function suspendSystems() {
                 uids: [systemUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("System suspended", systemUid));
 }
 
@@ -554,7 +514,7 @@ function resumeSystems() {
                 uids: [systemUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("System resumed", systemUid));
 }
 
@@ -565,6 +525,6 @@ function terminateSystems() {
                 uids: [systemUid]
             }
         })
-        .then(result => waitUntilOperationIsFinished(result.operation))
+        .then(result => airvantage.waitUntilOperationIsFinished(result.operation))
         .then(() => console.log("System terminated", systemUid));
 }
