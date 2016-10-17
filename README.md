@@ -228,6 +228,9 @@ function authenticate(username, password) {
 * publishApplication(uid)
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
 
+* addApplication(uid)
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
 * deleteApplication(uid)
     * uid
         * *Required*

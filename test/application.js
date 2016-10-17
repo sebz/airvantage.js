@@ -71,3 +71,14 @@ test("edit data", async t => {
     let editData = airvantage.editApplicationData(FAKE_UID, applicationDataDescription);
     t.notThrows(editData);
 });
+
+test("add application", async t => {
+    nock('https://tests.airvantage.io')
+        .get(`/api/v1/operations/applications/public/${FAKE_UID}?access_token=`)
+        .reply(200, {
+            operation: "operationUid"
+        });
+
+    const operationResult = await airvantage.addApplication(FAKE_UID);
+    t.truthy(operationResult && operationResult.operation);
+});
