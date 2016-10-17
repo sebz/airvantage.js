@@ -4,8 +4,7 @@
     "laxbreak": true,
     "node": true,
     "strict": false,
-    "sub": true,,
-    esversion": 6
+    "sub": true,
     "globals": {
         "__dirname": true,
         "before": true,
