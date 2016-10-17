@@ -249,6 +249,24 @@ function authenticate(username, password) {
         }
         ```
 
+## Alert Rules
+
+* *createAlertRule*(data)
+* *editAlertRule*(uid, data)
+* *deleteAlertRule*(uid)
+* *deleteAlertRules*(params)
+* *queryAlertRules*(params)
+* *getDetailsAlertRule*(id)
+
+* *createNotificationHook*(id, callback)
+> Add a new notification hook when the given alert rule identifier is triggered. When a rule get trigged, the given _callback_ is invoked
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+* *getNotificationHooks*(id)
+> Get the list of all notification hooks configured for the given alert rule identifier.
+> See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
+
+
 ## Operations
 * queryOperations
 > See https://doc.airvantage.net/av/reference/cloud/API/ for the methods arguments.
